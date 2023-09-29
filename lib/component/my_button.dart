@@ -1,5 +1,5 @@
-import 'package:artas_nails/screen/dashboard_screen.dart';
-import 'package:artas_nails/screen/my_design_screen.dart';
+import 'package:artas_nails/screen/dashbord/dashboard_screen.dart';
+import 'package:artas_nails/screen/mydesign/my_design_screen.dart';
 import 'package:flutter/material.dart';
 
 class MyButton extends StatelessWidget {

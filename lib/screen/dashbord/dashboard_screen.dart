@@ -1,4 +1,4 @@
-import 'package:artas_nails/screen/my_design_screen.dart';
+import 'package:artas_nails/screen/mydesign/my_design_screen.dart';
 import 'package:artas_nails/screen/youcamcommunity/youcamecommunitypage.dart';
 import 'package:artas_nails/utils/size_confiq.dart';
 import 'package:flutter/material.dart';
