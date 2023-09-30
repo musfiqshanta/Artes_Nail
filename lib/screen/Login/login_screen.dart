@@ -1,21 +1,17 @@
-import 'package:artas_nails/screen/Signup/signup_screen.dart';
+import 'package:artas_nails/firebase/firebase.dart';
 import 'package:flutter/material.dart';
-
-import '../../component/my_button.dart';
+import 'package:get/get.dart';
 import '../../component/my_textfield.dart';
 import '../../component/square_tile.dart';
 import '../Signup/sign_up_screen.dart';
-
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
   // text editing controllers
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  // sign user in method
-  void signUserIn() {}
+  final firebasecontroller = Get.put(FirebaseController());
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +21,6 @@ class LoginPage extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             child: Column(
-              
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 50),
@@ -51,7 +46,7 @@ class LoginPage extends StatelessWidget {
 
                 // username textfield
                 MyTextField(
-                  controller: usernameController,
+                  controller: emailController,
                   hintText: 'Email',
                   obscureText: false,
                 ),
@@ -84,9 +79,16 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 25),
 
                 // sign in button
-                MyButton(
-                  onTap: signUserIn,
-                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: Size(Get.width, 50),
+                    backgroundColor: Colors.black
+                  ),
+                    onPressed: ()async {
+                      firebasecontroller.SignIn(
+                          emailController.text, passwordController.text);
+                    },
+                    child: Text("Sign In",style: TextStyle(fontSize: 20),)),
 
                 const SizedBox(height: 50),
 
@@ -146,8 +148,9 @@ class LoginPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     InkWell(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (_)=> SignUpPage()));
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => SignUpPage()));
                       },
                       child: const Text(
                         'Register now',
@@ -159,7 +162,9 @@ class LoginPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),

@@ -21,10 +21,10 @@ class MyDesignScreen extends StatefulWidget {
 }
 
 class _MyDesignScreenState extends State<MyDesignScreen> {
+  
+  
   CameraController controllar = Get.put(CameraController());
-
   int selectedIndex = 0;
-
   List<Map> botomIcon = [
     {"icon": "assets/images/colorImage.png", "textName": "Color"},
     {"icon": "assets/images/nail_looksImage.png", "textName": "Nail Looks"},

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "255709079796",
+    "project_id": "arts-nails",
+    "storage_bucket": "arts-nails.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:255709079796:android:a3a7faadeb8579ad6916a1",
+        "android_client_info": {
+          "package_name": "musfiqshanta.teamx.arts_nails"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeFpC7KR4S6zGP2EV9dqhALqqk9fD451k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,13 +1,18 @@
 import 'package:artas_nails/bindings/all_bindings.dart';
+import 'package:artas_nails/firebase_options.dart';
 import 'package:artas_nails/screen/splashScreen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Future<void> main()async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  AllBindings().dependencies();
-  runApp(const MyApp());
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
