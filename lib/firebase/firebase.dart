@@ -1,12 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:artas_nails/screen/dashbord/dashboard_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 class FirebaseController extends GetxController {
   final auth = FirebaseAuth.instance;
   final user = FirebaseFirestore.instance.collection('users');
+  final storageRef = FirebaseStorage.instance.ref();
   Future SignUp(
       {required String email, name, password, required int phone}) async {
     try {
@@ -58,5 +62,42 @@ class FirebaseController extends GetxController {
       print('fuck');
       print(e);
     }
+  }
+
+  Future addColor(Color color) {
+    return user
+        .doc(auth.currentUser!.uid)
+        .collection('imageAndColor')
+        .doc('setColorAndImage')
+        .set({
+      "color": FieldValue.arrayUnion([color.toString().substring(6, 16)])
+    }, SetOptions(merge: true)).then((value) {
+      print('success');
+    });
+  }
+
+  Future nailLooks(String name, Uint8List file) async {
+    String now = DateTime.now().toString();
+    Reference ref = storageRef
+        .child("images")
+        .child('nailLooks')
+        .child("${auth.currentUser!.uid}_$now");
+    UploadTask uploadTask = ref.putData(file);
+
+    TaskSnapshot snap = await uploadTask;
+    String downloadUrl = await snap.ref.getDownloadURL();
+    return user
+        .doc(auth.currentUser!.uid)
+        .collection('imageAndColor')
+        .doc('setColorAndImage')
+        .set({
+      name: FieldValue.arrayUnion([downloadUrl])
+    }, SetOptions(merge: true));
+  }
+
+  bool isUserLoggedin() {
+    User? user = auth.currentUser;
+
+    return user != null;
   }
 }

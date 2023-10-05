@@ -1,3 +1,5 @@
+import 'package:artas_nails/firebase/firebase.dart';
+import 'package:artas_nails/screen/mydesign/my_design_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../component/custom_button.dart';
@@ -13,7 +15,7 @@ class OnBoardingScreen extends StatelessWidget {
     final OnBoardingController onBoardingController =
         Get.put(OnBoardingController());
     onBoardingController.getOnBoardingList();
-
+    final firebasecontroller = Get.put(FirebaseController());
     return Scaffold(
       body: GetBuilder<OnBoardingController>(
         builder: (onBoardingController) => onBoardingController
@@ -60,7 +62,9 @@ class OnBoardingScreen extends StatelessWidget {
                                       child: CustomButton(
                                         transparent: true,
                                         onPressed: () {
-                                          Get.to(LoginPage());
+                                          firebasecontroller.isUserLoggedin()
+                                              ? Get.to(MyDesignScreen())
+                                              : Get.to(LoginPage());
                                         },
                                         buttonText: 'Skip'.tr,
                                       ),
@@ -81,7 +85,9 @@ class OnBoardingScreen extends StatelessWidget {
                                     } else if (onBoardingController
                                             .selectedIndex ==
                                         3) {
-                                      Get.to(LoginPage());
+                                      firebasecontroller.isUserLoggedin()
+                                          ? Get.to(MyDesignScreen())
+                                          : Get.to(LoginPage());
                                       print("1");
 
                                       // Get.find<SplashController>().disableIntro();
