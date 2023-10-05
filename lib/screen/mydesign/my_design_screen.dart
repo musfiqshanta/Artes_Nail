@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:indexed/indexed.dart';
-
+import 'package:zoom_widget/zoom_widget.dart';
 import '../bottomContainerPage/backgroundContainer.dart';
 import '../bottomContainerPage/colorContainer.dart';
 import '../bottomContainerPage/nailLookContainer.dart';
@@ -35,6 +35,7 @@ class _MyDesignScreenState extends State<MyDesignScreen> {
   int selectedIndex = 0;
   int stickerSelect = -1;
   RxInt nailTap = 0.obs;
+  int bgSelect = 0;
   List<Map> botomIcon = [
     {"icon": "assets/images/colorImage.png", "textName": "Color"},
 
@@ -123,509 +124,560 @@ class _MyDesignScreenState extends State<MyDesignScreen> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: appBar(context),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            StreamBuilder(
-                stream: user
-                    .doc(auth!.uid)
-                    .collection('imageAndColor')
-                    .doc('setColorAndImage')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return CircularProgressIndicator();
-                  }
+      body: StreamBuilder(
+          stream: user
+              .doc(auth!.uid)
+              .collection('imageAndColor')
+              .doc('setColorAndImage')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return CircularProgressIndicator();
+            }
 
-                  var fingerColor = snapshot.data!['color'][0];
-                  var fingerImage = snapshot.data!['image'][0];
-                  var stickerImage;
-                  if (stickerSelect > -1) {
-                    stickerImage = snapshot.data!['sticker'][stickerSelect];
-                  }
+            var fingerColor = snapshot.data!['color'][0];
+            var fingerImage = snapshot.data!['image'][0];
+            // var background = snapshot.data!['image'][0];
+            var stickerImage, background;
+            //background = snapshot.data!['background'][bgSelect];
+            if (stickerSelect > -1) {
+              stickerImage = snapshot.data!['sticker'][stickerSelect];
+            }
+            if (bgSelect > -1) {
+              background = snapshot.data!['background'][bgSelect];
+            } else {
+              background = '';
+            }
+            if (selected == 0) {
+              fingerColor = snapshot.data!['color'][selectedIndex];
+            } else if (selected == 1) {
+              fingerImage = snapshot.data!['image'][selectedIndex];
+            }
 
-                  if (selected == 0) {
-                    fingerColor = snapshot.data!['color'][selectedIndex];
-                  } else if (selected == 1) {
-                    fingerImage = snapshot.data!['image'][selectedIndex];
-                  }
-
-                  return SizedBox(
-                    height: 480,
-                    width: 350,
-                    child: Indexer(
-                        alignment: AlignmentDirectional.bottomCenter,
-                        children: [
-                          Indexed(
-                            index: 1,
-                            child: Container(
-                              //constraints: BoxConstraints(maxWidth: 400, maxHeight: 490),
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/hand.png'))),
-                            ),
-                          ),
-                          Indexed(
-                            index: 0,
-                            child: Stack(
+            return Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                image: NetworkImage(background),
+                fit: BoxFit.cover,
+              )),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      height: 480,
+                      width: 350,
+                      child: Zoom(
+                        backgroundColor: Colors.transparent,
+                        canvasColor: Colors.transparent,
+                        enableScroll: false,
+                        child: Container(
+                          height: 480,
+                          width: 350,
+                          child: Indexer(
+                              alignment: AlignmentDirectional.bottomCenter,
                               children: [
-                                Positioned(
-                                  bottom: 326,
-                                  left: 24,
-                                  child: Transform.rotate(
-                                    angle: 150 * (pi / 180),
-                                    child: SizedBox(
-                                      width: 16,
-                                      height: 40,
-                                      child: ClipPath(
-                                        clipper: NailDesign(),
-                                        child: selected == 0
-                                            ? Stack(children: [
-                                                Container(
-                                                  width:
-                                                      16, // Adjust the container size as needed
-                                                  height: 50,
-                                                  color: Color(
-                                                      int.parse(fingerColor)),
-                                                ),
-                                                stickerSelect > -1
-                                                    ? Positioned(
-                                                        top: 10,
-                                                        right: 0,
-                                                        child: Transform.rotate(
-                                                          angle: 60 * pi / 180,
-                                                          child: Image.network(
-                                                            stickerImage,
-                                                            width: 30,
-                                                            fit: BoxFit.contain,
-                                                            // Adjust the fit as needed
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : SizedBox.shrink(),
-                                              ])
-                                            : Stack(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        16, // Adjust the container size as needed
-                                                    height: 50,
-                                                    // color: Colors.red,
-                                                    child: Image.network(
-                                                      fingerImage,
-                                                      fit: BoxFit
-                                                          .cover, // Adjust the fit as needed
-                                                    ),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle:
-                                                                60 * pi / 180,
-                                                            child:
-                                                                Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                              // Adjust the fit as needed
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              ),
-                                      ),
-                                    ),
+                                Indexed(
+                                  index: 1,
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 400, maxHeight: 490),
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                'assets/images/hand.png'))),
                                   ),
                                 ),
-                                Positioned(
-                                  bottom: 404,
-                                  left: 94,
-                                  child: Transform.rotate(
-                                    angle: 170 * (pi / 180),
-                                    child: SizedBox(
-                                      height: 40,
-                                      width: 20,
-                                      child: ClipPath(
-                                        clipper: NailDesign(),
-                                        child: selected == 0
-                                            ? Stack(children: [
-                                                Container(
-                                                  width:
-                                                      20, // Adjust the container size as needed
-                                                  height: 50,
-                                                  color: Color(
-                                                      int.parse(fingerColor)),
-                                                ),
-                                                stickerSelect > -1
-                                                    ? Positioned(
-                                                        top: 10,
-                                                        right: 0,
-                                                        child: Transform.rotate(
-                                                          angle: 60 * pi / 180,
-                                                          child: Image.network(
-                                                            stickerImage,
-                                                            width: 30,
-                                                            fit: BoxFit.contain,
-                                                            // Adjust the fit as needed
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : SizedBox.shrink(),
-                                              ])
-                                            : Stack(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        20, // Adjust the container size as needed
-                                                    height: 50,
-                                                    child: Image.network(
-                                                      fingerImage,
-                                                      fit: BoxFit
-                                                          .cover, // Adjust the fit as needed
-                                                    ),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle:
-                                                                170 * pi / 180,
-                                                            child:
-                                                                Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                              // Adjust the fit as needed
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 425,
-                                  left: 159,
-                                  child: Transform.rotate(
-                                    angle: 185 * (pi / 180),
-                                    child: SizedBox(
-                                      width: 21,
-                                      height: 40,
-                                      child: ClipPath(
-                                        clipper: NailDesign(),
-                                        child: selected == 0
-                                            ? Stack(
-                                                children: [
-                                                  SizedBox(
-                                                    width:
-                                                        21.5, // Adjust the container size as needed
-                                                    height: 50,
-                                                    //  color: Colors.red,
-                                                    child: ColoredBox(
+                                Indexed(
+                                  index: 0,
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        bottom: 326,
+                                        left: 23,
+                                        child: Transform.rotate(
+                                          angle: 158 * (pi / 180),
+                                          child: SizedBox(
+                                            width: 16.5,
+                                            height: 40,
+                                            child: ClipPath(
+                                              clipper: NailDesign(),
+                                              child: selected == 0
+                                                  ? Stack(children: [
+                                                      Container(
+                                                        width:
+                                                            16, // Adjust the container size as needed
+                                                        height: 50,
                                                         color: Color(int.parse(
-                                                            fingerColor))),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle:
-                                                                60 * pi / 180,
-                                                            child:
-                                                                Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                              // Adjust the fit as needed
-                                                            ),
+                                                            fingerColor)),
+                                                      ),
+                                                      stickerSelect > -1
+                                                          ? Positioned(
+                                                              top: 10,
+                                                              right: 0,
+                                                              child: Transform
+                                                                  .rotate(
+                                                                angle: 60 *
+                                                                    pi /
+                                                                    180,
+                                                                child: Image
+                                                                    .network(
+                                                                  stickerImage,
+                                                                  width: 30,
+                                                                  fit: BoxFit
+                                                                      .contain,
+                                                                  // Adjust the fit as needed
+                                                                ),
+                                                              ),
+                                                            )
+                                                          : SizedBox.shrink(),
+                                                    ])
+                                                  : Stack(
+                                                      children: [
+                                                        Container(
+                                                          width:
+                                                              16, // Adjust the container size as needed
+                                                          height: 50,
+                                                          // color: Colors.red,
+                                                          child: Image.network(
+                                                            fingerImage,
+                                                            fit: BoxFit
+                                                                .cover, // Adjust the fit as needed
                                                           ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              )
-                                            : Stack(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        21.5, // Adjust the container size as needed
-                                                    height: 50,
-                                                    child: Image.network(
-                                                      fingerImage,
-                                                      fit: BoxFit
-                                                          .cover, // Adjust the fit as needed
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 60 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle:
-                                                                60 * pi / 180,
-                                                            child:
-                                                                Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                              // Adjust the fit as needed
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 398,
-                                  left: 232,
-                                  child: Transform.rotate(
-                                    angle: 196 * (pi / 180),
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 40,
-                                      child: ClipPath(
-                                        clipper: NailDesign(),
-                                        child: selected == 0
-                                            ? Stack(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        21, // Adjust the container size as needed
-                                                    height: 50,
-                                                    color: Color(
-                                                        int.parse(fingerColor)),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle:
-                                                                60 * pi / 180,
-                                                            child:
-                                                                Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                              // Adjust the fit as needed
-                                                            ),
+                                      Positioned(
+                                        bottom: 404,
+                                        left: 94,
+                                        child: Transform.rotate(
+                                          angle: 172 * (pi / 180),
+                                          child: SizedBox(
+                                            height: 40,
+                                            width: 20,
+                                            child: ClipPath(
+                                              clipper: NailDesign(),
+                                              child: selected == 0
+                                                  ? Stack(children: [
+                                                      Container(
+                                                        width:
+                                                            20, // Adjust the container size as needed
+                                                        height: 50,
+                                                        color: Color(int.parse(
+                                                            fingerColor)),
+                                                      ),
+                                                      stickerSelect > -1
+                                                          ? Positioned(
+                                                              top: 10,
+                                                              right: 0,
+                                                              child: Transform
+                                                                  .rotate(
+                                                                angle: 60 *
+                                                                    pi /
+                                                                    180,
+                                                                child: Image
+                                                                    .network(
+                                                                  stickerImage,
+                                                                  width: 30,
+                                                                  fit: BoxFit
+                                                                      .contain,
+                                                                  // Adjust the fit as needed
+                                                                ),
+                                                              ),
+                                                            )
+                                                          : SizedBox.shrink(),
+                                                    ])
+                                                  : Stack(
+                                                      children: [
+                                                        Container(
+                                                          width:
+                                                              20, // Adjust the container size as needed
+                                                          height: 50,
+                                                          child: Image.network(
+                                                            fingerImage,
+                                                            fit: BoxFit
+                                                                .cover, // Adjust the fit as needed
                                                           ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              )
-                                            : Stack(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        21, // Adjust the container size as needed
-                                                    height: 50,
-                                                    child: Image.network(
-                                                      fingerImage,
-                                                      fit: BoxFit
-                                                          .cover, // Adjust the fit as needed
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 170 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle:
-                                                                60 * pi / 180,
-                                                            child:
-                                                                Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                              // Adjust the fit as needed
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 242,
-                                  right: 28,
-                                  child: Transform.rotate(
-                                    angle: 225 * (pi / 180),
-                                    child: SizedBox(
-                                      height: 40,
-                                      width: 16,
-                                      child: ClipPath(
-                                        clipper: NailDesign(),
-                                        child: selected == 0
-                                            ? Stack(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        15, // Adjust the container size as needed
-                                                    height: 50,
-                                                    color: Color(
-                                                        int.parse(fingerColor)),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child: Transform.rotate(
-                                                            angle: 60 * pi / 180,
-                                                            child: Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit.contain,
-                                                              // Adjust the fit as needed
-                                                            ),
+                                      Positioned(
+                                        bottom: 426,
+                                        left: 158,
+                                        child: Transform.rotate(
+                                          angle: 181 * (pi / 180),
+                                          child: SizedBox(
+                                            width: 22,
+                                            height: 40,
+                                            child: ClipPath(
+                                              clipper: NailDesign(),
+                                              child: selected == 0
+                                                  ? Stack(
+                                                      children: [
+                                                        SizedBox(
+                                                          width:
+                                                              21.5, // Adjust the container size as needed
+                                                          height: 50,
+                                                          //  color: Colors.red,
+                                                          child: ColoredBox(
+                                                              color: Color(
+                                                                  int.parse(
+                                                                      fingerColor))),
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 60 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
+                                                    )
+                                                  : Stack(
+                                                      children: [
+                                                        Container(
+                                                          width:
+                                                              21.5, // Adjust the container size as needed
+                                                          height: 50,
+                                                          child: Image.network(
+                                                            fingerImage,
+                                                            fit: BoxFit
+                                                                .cover, // Adjust the fit as needed
                                                           ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              )
-                                            : Stack(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        15, // Adjust the container size as needed
-                                                    height: 50,
-                                                    child: Image.network(
-                                                      fingerImage,
-                                                      fit: BoxFit
-                                                          .cover, // Adjust the fit as needed
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 60 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  stickerSelect > -1
-                                                      ? Positioned(
-                                                          top: 10,
-                                                          right: 0,
-                                                          child: Transform.rotate(
-                                                            angle: 60 * pi / 180,
-                                                            child: Image.network(
-                                                              stickerImage,
-                                                              width: 30,
-                                                              fit: BoxFit.contain,
-                                                              // Adjust the fit as needed
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      Positioned(
+                                        bottom: 398,
+                                        left: 231.5,
+                                        child: Transform.rotate(
+                                          angle: 195 * (pi / 180),
+                                          child: SizedBox(
+                                            width: 20.5,
+                                            height: 40,
+                                            child: ClipPath(
+                                              clipper: NailDesign(),
+                                              child: selected == 0
+                                                  ? Stack(
+                                                      children: [
+                                                        Container(
+                                                          width:
+                                                              21, // Adjust the container size as needed
+                                                          height: 50,
+                                                          color: Color(
+                                                              int.parse(
+                                                                  fingerColor)),
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 60 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
+                                                    )
+                                                  : Stack(
+                                                      children: [
+                                                        Container(
+                                                          width:
+                                                              21, // Adjust the container size as needed
+                                                          height: 50,
+                                                          child: Image.network(
+                                                            fingerImage,
+                                                            fit: BoxFit
+                                                                .cover, // Adjust the fit as needed
+                                                          ),
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 60 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
+                                                    ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 241.5,
+                                        right: 28,
+                                        child: Transform.rotate(
+                                          angle: 225 * (pi / 180),
+                                          child: SizedBox(
+                                            height: 40,
+                                            width: 16,
+                                            child: ClipPath(
+                                              clipper: NailDesign(),
+                                              child: selected == 0
+                                                  ? Stack(
+                                                      children: [
+                                                        Container(
+                                                          width:
+                                                              15, // Adjust the container size as needed
+                                                          height: 50,
+                                                          color: Color(
+                                                              int.parse(
+                                                                  fingerColor)),
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 60 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
+                                                    )
+                                                  : Stack(
+                                                      children: [
+                                                        Container(
+                                                          width:
+                                                              15, // Adjust the container size as needed
+                                                          height: 50,
+                                                          child: Image.network(
+                                                            fingerImage,
+                                                            fit: BoxFit
+                                                                .cover, // Adjust the fit as needed
+                                                          ),
+                                                        ),
+                                                        stickerSelect > -1
+                                                            ? Positioned(
+                                                                top: 10,
+                                                                right: 0,
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 60 *
+                                                                      pi /
+                                                                      180,
+                                                                  child: Image
+                                                                      .network(
+                                                                    stickerImage,
+                                                                    width: 30,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    // Adjust the fit as needed
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ],
+                                                    ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 111,
+                                        left: 20,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            nailTap.value = 1;
+                                          },
+                                          child: SizedBox(
+                                              height: 50,
+                                              width: 30,
+                                              child: ColoredBox(
+                                                  color: Colors.transparent)),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 30,
+                                        left: 88,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            nailTap.value = 2;
+                                          },
+                                          child: SizedBox(
+                                              height: 50,
+                                              width: 30,
+                                              child: ColoredBox(
+                                                  color: Colors.transparent)),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        left: 154,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            nailTap.value = 3;
+                                          },
+                                          child: SizedBox(
+                                              height: 50,
+                                              width: 30,
+                                              child: ColoredBox(
+                                                  color: Colors.transparent)),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 39,
+                                        left: 231,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            nailTap.value = 4;
+                                          },
+                                          child: SizedBox(
+                                              height: 50,
+                                              width: 30,
+                                              child: ColoredBox(
+                                                  color: Colors.transparent)),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 197,
+                                        right: 20,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            nailTap.value = 5;
+                                          },
+                                          child: SizedBox(
+                                              height: 50,
+                                              width: 30,
+                                              child: ColoredBox(
+                                                  color: Colors.transparent)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Positioned(
-                                  top: 111,
-                                  left: 20,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      nailTap.value = 1;
-                                    },
-                                    child: SizedBox(
-                                        height: 50,
-                                        width: 30,
-                                        child: ColoredBox(
-                                            color: Colors.transparent)),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 30,
-                                  left: 88,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      nailTap.value = 2;
-                                    },
-                                    child: SizedBox(
-                                        height: 50,
-                                        width: 30,
-                                        child: ColoredBox(
-                                            color: Colors.transparent)),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 10,
-                                  left: 154,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      nailTap.value = 3;
-                                    },
-                                    child: SizedBox(
-                                        height: 50,
-                                        width: 30,
-                                        child: ColoredBox(
-                                            color: Colors.transparent)),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 39,
-                                  left: 231,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      nailTap.value = 4;
-                                    },
-                                    child: SizedBox(
-                                        height: 50,
-                                        width: 30,
-                                        child: ColoredBox(
-                                            color: Colors.transparent)),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 197,
-                                  right: 20,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      nailTap.value = 5;
-                                    },
-                                    child: SizedBox(
-                                        height: 50,
-                                        width: 30,
-                                        child: ColoredBox(
-                                            color: Colors.transparent)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ]),
-                  );
-                }),
-            itemsSelection(size),
-          ],
-        ),
-      ),
+                              ]),
+                        ),
+                      ),
+                    ),
+                    itemsSelection(size),
+                  ],
+                ),
+              ),
+            );
+          }),
       bottomNavigationBar: container,
     );
   }
@@ -642,336 +694,201 @@ class _MyDesignScreenState extends State<MyDesignScreen> {
                 print("kkk$selectedIndex");
               });
             },
-            child: Container(
-                height: 70,
-                width: size.width,
-                color: Colors.grey.withOpacity(0.2),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 2),
-                      child: Container(
-                        height: 75,
-                        width: 75,
-                        color: Colors.white,
-                        child: Column(
-                          children: [
-                            Expanded(
-                                child: Image(
-                                    image: AssetImage(
-                                        "assets/images/nailPalisImage.png"))),
-                            SizedBox(
-                              height: 5,
+            child: StreamBuilder(
+                stream: user
+                    .doc(auth!.uid)
+                    .collection('imageAndColor')
+                    .doc('setColorAndImage')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  }
+                  final data = snapshot.data;
+                  return Container(
+                      height: 70,
+                      width: size.width,
+                      color: Colors.grey.withOpacity(0.2),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 2),
+                            child: Container(
+                              height: 75,
+                              width: 75,
+                              color: Colors.white,
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                      child: Image(
+                                          image: AssetImage(
+                                              "assets/images/nailPalisImage.png"))),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    "PERFECT",
+                                    style: TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  )
+                                ],
+                              ),
                             ),
-                            Text(
-                              "PERFECT",
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    selected == 0
-                        ? Expanded(
-                            child: StreamBuilder(
-                                stream: user
-                                    .doc(auth!.uid)
-                                    .collection('imageAndColor')
-                                    .doc('setColorAndImage')
-                                    .snapshots(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgressIndicator();
-                                  }
-                                  final data = snapshot.data;
-                                  print(data!['color'].length);
-                                  return SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        //  print(data!["color"][0]);
+                          ),
+                          selected == 0
+                              ? SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      //  print(data!["color"][0]);
 
-                                        // String colors="Color(0xff443a49)" ;
+                                      // String colors="Color(0xff443a49)" ;
 
-                                        // String substing=colors.substring(6,16);
-                                        // print(substing);
-                                        ListView.builder(
-                                            shrinkWrap: true,
-                                            primary: false,
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: data['color'].length,
-                                            itemBuilder: (context, index) {
-                                              return GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      if (selectedIndex !=
-                                                          -index) {
-                                                        selectedIndex = index;
-                                                      } else {
-                                                        selectedIndex == index;
-                                                      }
-                                                    });
-                                                    if (kDebugMode) {
-                                                      print(
-                                                          "INDEX__$selectedIndex");
+                                      // String substing=colors.substring(6,16);
+                                      // print(substing);
+                                      ListView.builder(
+                                          shrinkWrap: true,
+                                          primary: false,
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: data!['color'].length,
+                                          itemBuilder: (context, index) {
+                                            return GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    if (selectedIndex !=
+                                                        -index) {
+                                                      selectedIndex = index;
+                                                    } else {
+                                                      selectedIndex == index;
                                                     }
-                                                  },
-                                                  child: Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 5),
-                                                      child: Container(
-                                                        height: 50,
-                                                        width: 50,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                                color: Color(int
-                                                                    .parse(data[
+                                                  });
+                                                  if (kDebugMode) {
+                                                    print(
+                                                        "INDEX__$selectedIndex");
+                                                  }
+                                                },
+                                                child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 5),
+                                                    child: Container(
+                                                      height: 50,
+                                                      width: 50,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Color(
+                                                              int.parse(
+                                                                  data['color']
+                                                                      [index])),
+                                                          border: selectedIndex ==
+                                                                  index
+                                                              ? Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 3)
+                                                              : Border.all(
+                                                                  color: Color(
+                                                                    int.parse(data[
                                                                             'color']
                                                                         [
-                                                                        index])),
-                                                                border: selectedIndex ==
-                                                                        index
-                                                                    ? Border.all(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        width:
-                                                                            3)
-                                                                    : Border
-                                                                        .all(
-                                                                        color:
-                                                                            Color(
-                                                                          int.parse(data['color']
-                                                                              [
-                                                                              index]),
-                                                                        ),
-                                                                      )),
-                                                      )));
-                                            }),
+                                                                        index]),
+                                                                  ),
+                                                                )),
+                                                    )));
+                                          }),
 
-                                        Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            child: Container(
-                                              height: 50,
-                                              width: 50,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.white,
-                                                border: Border.all(
-                                                    color: Colors.amber),
-                                              ),
-                                              child: IconButton(
-                                                  onPressed: () {
-                                                    Get.defaultDialog(
-                                                        title: "Add Your Color",
-                                                        content: ColorPicker(
-                                                          //enableAlpha: false,
-                                                          displayThumbColor:
-                                                              true,
+                                      Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          child: Container(
+                                            height: 50,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: Colors.amber),
+                                            ),
+                                            child: IconButton(
+                                                onPressed: () {
+                                                  Get.defaultDialog(
+                                                      title: "Add Your Color",
+                                                      content: ColorPicker(
+                                                        //enableAlpha: false,
+                                                        displayThumbColor: true,
 
-                                                          pickerColor:
-                                                              pickerColor,
-                                                          onColorChanged:
-                                                              ((value) {
-                                                            print('color');
-                                                            print(value);
-                                                            pickerColor = value;
-                                                          }),
-                                                        ),
-                                                        confirm: ElevatedButton(
-                                                            style: ElevatedButton
-                                                                .styleFrom(
-                                                                    backgroundColor:
-                                                                        pickerColor),
-                                                            onPressed: () {
-                                                              firebaseController
-                                                                  .addColor(
-                                                                      pickerColor);
+                                                        pickerColor:
+                                                            pickerColor,
+                                                        onColorChanged:
+                                                            ((value) {
+                                                          print('color');
+                                                          print(value);
+                                                          pickerColor = value;
+                                                        }),
+                                                      ),
+                                                      confirm: ElevatedButton(
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                                  backgroundColor:
+                                                                      pickerColor),
+                                                          onPressed: () {
+                                                            firebaseController
+                                                                .addColor(
+                                                                    pickerColor);
 
-                                                              //Get.back();
-                                                            },
-                                                            child: Text(
-                                                                "Add Color")));
+                                                            //Get.back();
+                                                          },
+                                                          child: Text(
+                                                              "Add Color")));
 
-                                                    print(
-                                                        "picker colors value");
-                                                    print(pickerColor);
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.add,
-                                                    color: Colors.black,
-                                                    size: 30,
-                                                    weight: 20,
-                                                  )),
-                                            )),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                          )
-                        : selected == 1
-                            ? StreamBuilder(
-                                stream: user
-                                    .doc(auth!.uid)
-                                    .collection('imageAndColor')
-                                    .doc('setColorAndImage')
-                                    .snapshots(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgressIndicator();
-                                  }
-                                  final data = snapshot.data;
-                                  // print(data!['color'].length);
-                                  return Expanded(
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        children: [
-                                          ListView.builder(
-                                              shrinkWrap: true,
-                                              primary: false,
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: data!['image'].length,
-                                              itemBuilder: (context, index) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      if (selectedIndex !=
-                                                          -index) {
-                                                        selectedIndex = index;
-                                                      } else {
-                                                        selectedIndex == index;
-                                                      }
-                                                    });
-                                                    if (kDebugMode) {
-                                                      print(
-                                                          "INDEX__$selectedIndex");
-                                                    }
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      5),
-                                                          child: Container(
-                                                            height: 50,
-                                                            width: 50,
-                                                            decoration: BoxDecoration(
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                                image: DecorationImage(
-                                                                    image: NetworkImage(
-                                                                        data['image']
-                                                                            [
-                                                                            index]),
-                                                                    fit: BoxFit
-                                                                        .cover),
-                                                                border: selectedIndex ==
-                                                                        index
-                                                                    ? Border.all(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        width:
-                                                                            3)
-                                                                    : Border.all(
-                                                                        color: Colors
-                                                                            .transparent)),
-                                                          )),
-                                                    ],
-                                                  ),
-                                                );
-                                              }),
-                                          Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 5),
-                                              child: Container(
-                                                height: 50,
-                                                width: 50,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: Colors.amber),
-                                                ),
-                                                child: IconButton(
-                                                    onPressed: () {
-                                                      imagepickerController
-                                                          .pickNailLooks(
-                                                              'image');
-                                                    },
-                                                    icon: Icon(
-                                                      Icons.add,
-                                                      color: Colors.black,
-                                                      size: 30,
-                                                      weight: 20,
-                                                    )),
-                                              )),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                })
-                            : selected == 3
-                                ? StreamBuilder(
-                                    stream: user
-                                        .doc(auth!.uid)
-                                        .collection('imageAndColor')
-                                        .doc('setColorAndImage')
-                                        .snapshots(),
-                                    builder: (context, snapshot) {
-                                      if (!snapshot.hasData) {
-                                        return CircularProgressIndicator();
-                                      }
-                                      final data = snapshot.data;
-                                      // print(data!['color'].length);
-                                      return Expanded(
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                            children: [
-                                              ListView.builder(
-                                                  shrinkWrap: true,
-                                                  primary: false,
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  itemCount:
-                                                      data!['sticker'].length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          print("index $index");
-                                                          if (stickerSelect !=
-                                                              index) {
-                                                            stickerSelect =
-                                                                index;
-                                                          } else if (stickerSelect ==
-                                                              index) {
-                                                            print(
-                                                                'sticker gone');
-                                                            stickerSelect = -1;
-                                                          }
-
-                                                          print(stickerSelect);
-                                                        });
-                                                        if (kDebugMode) {
-                                                          print(
-                                                              "INDEX__$selectedIndex");
+                                                  print("picker colors value");
+                                                  print(pickerColor);
+                                                },
+                                                icon: Icon(
+                                                  Icons.add,
+                                                  color: Colors.black,
+                                                  size: 30,
+                                                  weight: 20,
+                                                )),
+                                          )),
+                                    ],
+                                  ),
+                                )
+                              : selected == 1
+                                  ? Expanded(
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          children: [
+                                            ListView.builder(
+                                                shrinkWrap: true,
+                                                primary: false,
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemCount:
+                                                    data!['image'].length,
+                                                itemBuilder: (context, index) {
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        if (selectedIndex !=
+                                                            -index) {
+                                                          selectedIndex = index;
+                                                        } else {
+                                                          selectedIndex ==
+                                                              index;
                                                         }
-                                                      },
-                                                      child: Row(
-                                                        children: [
-                                                          Padding(
+                                                      });
+                                                      if (kDebugMode) {
+                                                        print(
+                                                            "INDEX__$selectedIndex");
+                                                      }
+                                                    },
+                                                    child: Row(
+                                                      children: [
+                                                        Padding(
                                                             padding:
                                                                 const EdgeInsets
                                                                     .symmetric(
@@ -985,7 +902,7 @@ class _MyDesignScreenState extends State<MyDesignScreen> {
                                                                       .circle,
                                                                   image: DecorationImage(
                                                                       image: NetworkImage(
-                                                                          data['sticker']
+                                                                          data['image']
                                                                               [
                                                                               index]),
                                                                       fit: BoxFit
@@ -1000,45 +917,259 @@ class _MyDesignScreenState extends State<MyDesignScreen> {
                                                                       : Border.all(
                                                                           color:
                                                                               Colors.transparent)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  }),
-                                              Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(horizontal: 5),
-                                                  child: Container(
-                                                    height: 50,
-                                                    width: 50,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.white,
-                                                      border: Border.all(
-                                                          color: Colors.amber),
+                                                            )),
+                                                      ],
                                                     ),
-                                                    child: IconButton(
-                                                        onPressed: () {
-                                                          imagepickerController
-                                                              .pickNailLooks(
-                                                                  'sticker');
-                                                        },
-                                                        icon: Icon(
-                                                          Icons.add,
-                                                          color: Colors.black,
-                                                          size: 30,
-                                                          weight: 20,
-                                                        )),
-                                                  )),
-                                            ],
-                                          ),
+                                                  );
+                                                }),
+                                            Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 5),
+                                                child: Container(
+                                                  height: 50,
+                                                  width: 50,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.white,
+                                                    border: Border.all(
+                                                        color: Colors.amber),
+                                                  ),
+                                                  child: IconButton(
+                                                      onPressed: () {
+                                                        imagepickerController
+                                                            .pickNailLooks(
+                                                                'image');
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.add,
+                                                        color: Colors.black,
+                                                        size: 30,
+                                                        weight: 20,
+                                                      )),
+                                                )),
+                                          ],
                                         ),
-                                      );
-                                    })
-                                : SizedBox.shrink()
-                  ],
-                )),
+                                      ),
+                                    )
+                                  : selected == 3
+                                      ? Expanded(
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Row(
+                                              children: [
+                                                ListView.builder(
+                                                    shrinkWrap: true,
+                                                    primary: false,
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    itemCount:
+                                                        data!['sticker'].length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return GestureDetector(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            print(
+                                                                "index $index");
+                                                            if (stickerSelect !=
+                                                                index) {
+                                                              stickerSelect =
+                                                                  index;
+                                                            } else if (stickerSelect ==
+                                                                index) {
+                                                              print(
+                                                                  'sticker gone');
+                                                              stickerSelect =
+                                                                  -1;
+                                                            }
+
+                                                            print(
+                                                                stickerSelect);
+                                                          });
+                                                          if (kDebugMode) {
+                                                            print(
+                                                                "INDEX__$selectedIndex");
+                                                          }
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          5),
+                                                              child: Container(
+                                                                height: 50,
+                                                                width: 50,
+                                                                decoration: BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    image: DecorationImage(
+                                                                        image: NetworkImage(data['sticker']
+                                                                            [
+                                                                            index]),
+                                                                        fit: BoxFit
+                                                                            .cover),
+                                                                    border: selectedIndex ==
+                                                                            index
+                                                                        ? Border.all(
+                                                                            color: Colors
+                                                                                .white,
+                                                                            width:
+                                                                                3)
+                                                                        : Border.all(
+                                                                            color:
+                                                                                Colors.transparent)),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    }),
+                                                Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 5),
+                                                    child: Container(
+                                                      height: 50,
+                                                      width: 50,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.white,
+                                                        border: Border.all(
+                                                            color:
+                                                                Colors.amber),
+                                                      ),
+                                                      child: IconButton(
+                                                          onPressed: () {
+                                                            imagepickerController
+                                                                .pickNailLooks(
+                                                                    'sticker');
+                                                          },
+                                                          icon: Icon(
+                                                            Icons.add,
+                                                            color: Colors.black,
+                                                            size: 30,
+                                                            weight: 20,
+                                                          )),
+                                                    )),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : selected == 4
+                                          ? Expanded(
+                                              child: SingleChildScrollView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: Row(
+                                                  children: [
+                                                    ListView.builder(
+                                                        shrinkWrap: true,
+                                                        primary: false,
+                                                        scrollDirection:
+                                                            Axis.horizontal,
+                                                        itemCount:
+                                                            data!['background']
+                                                                .length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return GestureDetector(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                print(
+                                                                    "index $index");
+                                                                if (bgSelect !=
+                                                                    index) {
+                                                                  bgSelect =
+                                                                      index;
+                                                                } else if (bgSelect ==
+                                                                    index) {
+                                                                  print(
+                                                                      'sticker gone');
+                                                                  bgSelect = -1;
+                                                                }
+
+                                                                print(
+                                                                    stickerSelect);
+                                                              });
+                                                              if (kDebugMode) {
+                                                                print(
+                                                                    "INDEX__$selectedIndex");
+                                                              }
+                                                            },
+                                                            child: Row(
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          5),
+                                                                  child:
+                                                                      Container(
+                                                                    height: 50,
+                                                                    width: 50,
+                                                                    decoration: BoxDecoration(
+                                                                        shape: BoxShape
+                                                                            .circle,
+                                                                        image: DecorationImage(
+                                                                            image: NetworkImage(data['background'][
+                                                                                index]),
+                                                                            fit: BoxFit
+                                                                                .cover),
+                                                                        border: selectedIndex ==
+                                                                                index
+                                                                            ? Border.all(
+                                                                                color: Colors.white,
+                                                                                width: 3)
+                                                                            : Border.all(color: Colors.transparent)),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        }),
+                                                    Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 5),
+                                                        child: Container(
+                                                          height: 50,
+                                                          width: 50,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            color: Colors.white,
+                                                            border: Border.all(
+                                                                color: Colors
+                                                                    .amber),
+                                                          ),
+                                                          child: IconButton(
+                                                              onPressed: () {
+                                                                imagepickerController
+                                                                    .pickNailLooks(
+                                                                        'background');
+                                                              },
+                                                              icon: Icon(
+                                                                Icons.add,
+                                                                color: Colors
+                                                                    .black,
+                                                                size: 30,
+                                                                weight: 20,
+                                                              )),
+                                                        )),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          : SizedBox.shrink()
+                        ],
+                      ));
+                }),
           ),
         ));
   }

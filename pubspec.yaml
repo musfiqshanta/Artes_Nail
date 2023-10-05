@@ -17,6 +17,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   image_picker: ^1.0.4
   firebase_storage: ^11.2.7
+  zoom_widget: ^2.0.1
 
 dev_dependencies:
   flutter_test:
